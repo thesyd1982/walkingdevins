@@ -1,18 +1,5 @@
 import { Injectable } from '@nestjs/common';
-type Role = 'VOLENTEER' | 'REFERENT' | 'MODERATOR' | 'ORGANIZER'
-interface User {
-    id: number,
-    firstName: string,
-    lastName: string,
-    email: string,
-    role: Role
-}
-// All Optional But Id is required
-type updateUserDto = Partial<Omit<User, 'id'>> & Pick<User, 'id'>
-
-type createUserDto = Omit<User, 'id'>
-
-
+import { CreateUserDTO, Role, UpdateUserDTO } from './dto';
 @Injectable()
 export class UsersService {
     private users = [
@@ -57,16 +44,16 @@ export class UsersService {
         const user = this.users.find(user => user.id === id)
         return user
     }
-    create(user: createUserDto) {
+    create(createUserDTO: CreateUserDTO) {
         const usersByHighestId = [...this.users].sort((a, z) => z.id - a.id)
-        const newUser = { id: usersByHighestId[0].id + 1, ...user }
+        const newUser = { id: usersByHighestId[0].id + 1, ...createUserDTO }
         this.users.push(newUser)
         return newUser
     }
-    update(id: number, userUpdate: updateUserDto) {
+    update(id: number, updateUserDTO: UpdateUserDTO) {
         this.users = this.users.map(user => {
             if (user.id === id)
-                return { ...user, ...userUpdate }
+                return { ...user, ...updateUserDTO }
             return user
         })
         return this.findOne(id)
