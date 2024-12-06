@@ -2,7 +2,7 @@ import { IsEmail, IsString, IsEnum } from "class-validator";
 
 export enum Role { VOLENTEER = "VOLENTEER", REFERENT = "REFERENT", MODERATOR = "MODERATOR", ORGANIZER = "ORGANIZER" }
 
-export class CreateUserDTO {
+export class CreateUserDto {
     id: number;
 
     @IsString()
