@@ -1,12 +1,15 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from '@prisma/client'
+import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2'
 import { AuthDto } from './dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private prisma: PrismaService, private jwt: JwtService, private config: ConfigService) { }
     async signup(authDto: AuthDto) {
         try {
             // generate the password hash
@@ -33,22 +36,38 @@ export class AuthService {
         }
     }
 
-    async signin(authDto: AuthDto) {
+    async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
+        console.log(email, password);
         // find the user by email
-        const user = await this.prisma.user.findUnique({ where: { email: authDto.email } })
+        const user = await this.prisma.user.findUnique({ where: { email: email } })
 
-        // if user doesn't exist throw exception
-        if (!user) throw new ForbiddenException('Credentials incorrect')
+        if (user && await argon.verify(user.password, password)) {
+            // send back the user
+            delete user.password
+            return user
+        }
+        return null
+    }
 
-        // compare the password 
-        const pwdMatches = await argon.verify(user.password, authDto.password)
-        // if the password is wrong throw exception
+    async signin(user: Omit<User, 'password'>) {
+        // generate the access token 
+        const accessToken = await this.signToken(user.id, user.email)
+        console.log(accessToken);
+        // generate the refresh token 
+        const refreshToken = await this.signToken(user.id, user.email, 'refresh')
+        return { access_token: accessToken, refresh_token: refreshToken }
+    }
 
-        if (!pwdMatches)
-            throw new ForbiddenException('Credentials incorrect')
+    signToken(userId: number, email: string, tokenType?: string): Promise<string> {
+        let expiresIn = 15 * 60 * 1000
+        let secret = this.config.get('JWT_SECRET')
 
-        // send back the user 
-        delete user.password
-        return user
+        if (tokenType === 'refresh') {
+            expiresIn = 24 * 60 * 60 * 1000
+            secret = this.config.get('JWT_REFRESH_SECRET')
+        }
+
+        const payload = { sub: userId, email, iat: Date.now() }
+        return this.jwt.signAsync(payload, { expiresIn, secret: this.config.get('JWT_SECRET') })
     }
 }
