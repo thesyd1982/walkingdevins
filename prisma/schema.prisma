@@ -14,13 +14,15 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    createdAt DateTime @default(now())
-    email     String   @unique
-    password  String 
-    name      String?
-    role      Role     @default(VOLENTEER)
-    posts     Post[]
+    id           Int            @id @default(autoincrement())
+    createdAt    DateTime       @default(now())
+    email        String         @unique
+    password     String
+    name         String?
+    role         Int            @default(0)
+    posts        Post[]
+    RefreshToken RefreshToken[]
+
     @@map("users")
 }
 
@@ -32,12 +34,19 @@ model Post {
     title     String   @db.VarChar(255)
     author    User?    @relation(fields: [authorId], references: [id])
     authorId  Int?
+
     @@map("posts")
 }
 
-enum Role {
-    VOLENTEER
-    REFERENT
-    MODERATOR 
-    ORGANIZER
+model RefreshToken {
+    id          Int      @id @default(autoincrement())
+    hashedToken String   @unique
+    userId      Int
+    User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    revoked     Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    expireAt    DateTime
+
+    @@map("refreshTokens")
 }
