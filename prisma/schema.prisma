@@ -23,6 +23,7 @@ model User {
     role         Int            @default(0)
     posts        Post[]
     RefreshToken RefreshToken[]
+    Task         Task[]
 
     @@map("users")
 }
@@ -51,4 +52,18 @@ model RefreshToken {
     expireAt    DateTime
 
     @@map("refreshTokens")
+}
+
+model Task {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    published   Boolean  @default(false)
+    name        String   @unique @db.VarChar(255)
+    description String   @db.Text
+
+    creator  User? @relation(fields: [authorId], references: [id])
+    authorId Int?
+
+    @@map("tasks")
 }
