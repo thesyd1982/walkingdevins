@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
-export class TokenService {
+export class TokensService {
     constructor(private jwt: JwtService, private config: ConfigService) { }
 
     signToken(userId: number, email: string, tokenType?: string): Promise<string> {

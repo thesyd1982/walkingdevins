@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import * as argon from 'argon2'
-import { SignupDto, SigninDto } from './dto';
+import { SignupDto, SigninDto } from './dtos';
 import { UsersService } from '../users/users.service';
-import { TokenService } from '../tokens/token.service';
+import { TokensService } from '../tokens/tokens.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
-        private tokenService: TokenService
+        private tokensService: TokensService
     ) { }
 
     async signup(signupDto: SignupDto) {
@@ -31,10 +31,10 @@ export class AuthService {
     async signin(signinDto: SigninDto) {
         const user = await this.usersService.findOne(signinDto.email)
         // generate the access token 
-        const accessToken = await this.tokenService.signToken(user.id, user.email)
+        const accessToken = await this.tokensService.signToken(user.id, user.email)
         // generate the refresh token 
-        const refreshToken = await this.tokenService.signToken(user.id, user.email, 'refresh')
-        this.tokenService.saveToken(user.id, refreshToken, 'refresh')
+        const refreshToken = await this.tokensService.signToken(user.id, user.email, 'refresh')
+        this.tokensService.saveToken(user.id, refreshToken, 'refresh')
 
         return { access_token: accessToken, refresh_token: refreshToken }
     }
