@@ -18,7 +18,8 @@ model User {
     createdAt    DateTime       @default(now())
     email        String         @unique
     password     String
-    name         String?
+    firstname    String?
+    lastname     String?
     role         Int            @default(0)
     posts        Post[]
     RefreshToken RefreshToken[]
@@ -32,6 +33,7 @@ model Post {
     updatedAt DateTime @updatedAt
     published Boolean  @default(false)
     title     String   @db.VarChar(255)
+    content   String   @db.Text
     author    User?    @relation(fields: [authorId], references: [id])
     authorId  Int?
 

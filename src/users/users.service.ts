@@ -1,74 +1,72 @@
-import { Injectable } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common';
-import { CreateUserDto, Role, UpdateUserDto } from './dto';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDto, UpdateUserDto } from './dto';
+import { Role } from './entities/user.entity';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import * as argon2 from 'argon2'
+
 @Injectable()
 export class UsersService {
-    private users = [
-        {
-            id: 1,
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'qGy9E@example.com',
-            role: 'VOLUNTEER'
-        },
-        {
-            id: 2,
-            firstName: 'Jane',
-            lastName: 'Doe',
-            email: 'g7oZG@example.com',
-            role: 'REFERENT'
-        },
-        {
-            id: 3,
-            firstName: 'John',
-            lastName: 'Smith',
-            email: 'm2T4b@example.com',
-            role: 'MODERATOR'
-        },
-        {
-            id: 4,
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: '7VZQ8@example.com',
-            role: 'ORGANIZER'
+    constructor(private prisma: PrismaService) { }
+
+    async findAll(role?: Role) {
+        const users = await this.prisma.user.findMany({
+            where: role ? { role } : undefined
+        });
+        if (users.length === 0) throw new NotFoundException('No users found');
+        return users;
+    }
+
+    async findOne(uniqueKey: number | string) {
+        const isEmail = typeof uniqueKey === 'string'
+        const user = await this.prisma.user.findUnique({ where: isEmail ? { email: uniqueKey } : { id: uniqueKey } });
+        if (!user) throw new NotFoundException('User not found');
+        return user;
+    }
+
+    async create(createUserDto: CreateUserDto) {
+
+        try {
+            const argon2Options = {
+                type: argon2.argon2id,
+                memoryCost: 2 ** 16,
+                timeCost: 3,
+                parallelism: 1
+            }
+
+            // generate the password hash
+            const hashedPassword = await argon2.hash(createUserDto.password, argon2Options)
+
+            // save the new user in the db
+            const newUser = await this.prisma.user.create({
+                data: {
+                    ...createUserDto,
+                    password: hashedPassword
+                }
+            })
+            delete newUser.password
+            // return the new user
+            return newUser
         }
-
-    ]
-
-    findAll(role?: Role) {
-        if (role) {
-            const filteredUsers = this.users.filter(user => user.role === role)
-            if (filteredUsers.length === 0) throw new NotFoundException('No users found')
-            return filteredUsers
-
+        catch (error) {
+            if (error instanceof PrismaClientKnownRequestError) {
+                console.log(error)
+                if (error.code === 'P2002') {
+                    throw new ForbiddenException('Credentials taken')
+                }
+            }
+            throw error
         }
-        return this.users
-    }
-    findOne(id: number) {
-        const user = this.users.find(user => user.id === id)
-        if (!user) return new NotFoundException('User not found')
-        return user
-    }
-    create(createUserDto: CreateUserDto) {
-        const usersByHighestId = [...this.users].sort((a, z) => z.id - a.id)
-        const newUser = { id: usersByHighestId[0].id + 1, ...createUserDto }
-        this.users.push(newUser)
-        return newUser
-    }
-    update(id: number, updateUserDto: UpdateUserDto) {
-        this.users = this.users.map(user => {
-            if (user.id === id)
-                return { ...user, ...updateUserDto }
-            return user
-        })
-        return this.findOne(id)
     }
 
-    delete(id: number) {
-        const removedUser = this.findOne(id)
-        this.users = this.users.filter(user => user.id !== id)
-        return removedUser
+    async update(id: number, updateUserDto: UpdateUserDto) {
+        return this.prisma.user.update({
+            where: { id },
+            data: updateUserDto
+        });
     }
 
-
+    async delete(id: number) {
+        return this.prisma.user.delete({ where: { id } });
+    }
 }

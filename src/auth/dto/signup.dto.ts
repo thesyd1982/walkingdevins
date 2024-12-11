@@ -1,7 +1,6 @@
-import { IsEmail, IsString, IsEnum, MinLength, IsOptional } from "class-validator";
-import { Role } from "../entities/user.entity";
-
-export class CreateUserDto {
+import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from "class-validator";
+import { Role } from "src/users/entities/user.entity";
+export class SignupDto {
     @IsOptional()
     @IsString({ message: 'First name must be a string' })
     firstname: string;
