@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreatePostDto, UpdatePostDto, QueryParamsPostDto } from './dto';
+import { CreatePostDto, UpdatePostDto, QueryParamsPostDto } from './dtos';
 // import { UsersService } from '../users/users.service';
-import { IPostRepository } from './repositories';
+import { IPostRepository } from './interfaces';
 
 @Injectable()
 export class PostsService {
@@ -9,6 +9,7 @@ export class PostsService {
         @Inject('IPostRepository') private postRepository: IPostRepository) { }
 
     create(createPostDto: CreatePostDto) {
+
         return this.postRepository.create(createPostDto)
     }
 
@@ -27,4 +28,5 @@ export class PostsService {
     delete(id: number) {
         this.postRepository.delete(id)
     }
+    finByEmail() { }
 }

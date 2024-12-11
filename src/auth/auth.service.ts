@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as argon from 'argon2'
 import { SignupDto, SigninDto } from './dto';
 import { UsersService } from '../users/users.service';
-import { TokenService } from '../token/token.service';
+import { TokenService } from '../tokens/token.service';
 
 @Injectable()
 export class AuthService {

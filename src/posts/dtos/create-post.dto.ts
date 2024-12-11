@@ -1,9 +1,10 @@
-import { IsNumber, IsOptional, IsString, MaxLength } from "class-validator"
+import { IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength } from "class-validator"
 
 export class CreatePostDto {
     // TODO add swagger and the annotations
     @IsString({ message: 'Title must be a string' })
     @MaxLength(255, { message: 'Title is too long' })
+    @IsNotEmpty()
     title: string
 
     @IsString()

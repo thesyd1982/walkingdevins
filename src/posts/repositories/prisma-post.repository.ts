@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { IPostRepository } from './post.repository.interface';
-import { CreatePostDto, QueryParamsPostDto, UpdatePostDto } from '../dto';
+import { IPostRepository } from '../interfaces';
+import { CreatePostDto, QueryParamsPostDto, UpdatePostDto } from '../dtos';
 import { Post } from '@prisma/client';
 
 @Injectable()
@@ -9,6 +9,7 @@ export class PrismaPostRepository implements IPostRepository {
     constructor(private prisma: PrismaService) { }
 
     async create(data: CreatePostDto): Promise<Post> {
+
         return this.prisma.post.create({ data });
     }
 
