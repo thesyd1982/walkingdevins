@@ -19,6 +19,10 @@ export class PrismaExceptionFilter implements ExceptionFilter {
                 statusCode = HttpStatus.NOT_FOUND;
                 message = 'The requested record was not found.';
                 break;
+            case 'P2003': // foreign key constraint violation
+                statusCode = HttpStatus.BAD_REQUEST;
+                message = 'A record with this value does not exist.';
+                break;
         }
 
         response.status(statusCode).json({

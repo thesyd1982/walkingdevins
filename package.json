@@ -2,9 +2,9 @@
   "name": "walkingdevins",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "douakha salah yacine",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "Propriétaire Exclusif",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
