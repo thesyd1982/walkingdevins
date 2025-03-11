@@ -4,11 +4,20 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UsersModule } from '../users/users.module';
-import { TokensService } from 'src/tokens/tokens.service';
+import { TokensModule } from 'src/tokens/tokens.module';
 
 @Module({
-    imports: [PrismaModule, JwtModule.register({}), UsersModule],
-    providers: [AuthService, TokensService],
-    controllers: [AuthController]
+    imports: [
+        PrismaModule,
+        JwtModule.register({}),
+        UsersModule,
+        TokensModule
+
+    ],
+    providers: [
+        AuthService,
+    ],
+    controllers: [AuthController],
+    exports: [JwtModule]
 })
 export class AuthModule { }

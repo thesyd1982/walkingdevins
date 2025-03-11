@@ -1,11 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { ICRUDRepository } from '../../common/interfaces/crud-repository.interface';
+import { ICRUDRepository } from 'src/common/interfaces/crud-repository.interface';
 
-export class PrismaRepository<T, CreateDto, UpdateDto, QueryParamsDto> implements ICRUDRepository<T, CreateDto, UpdateDto, QueryParamsDto> {
+
+export class PrismaRepository<T extends { id: string | number }, CreateDto, UpdateDto, QueryParamsDto>
+    implements ICRUDRepository<T, CreateDto, UpdateDto, QueryParamsDto> {
+
     private readonly prismaModel: any;
 
-    constructor(private readonly prisma: PrismaClient, model: keyof PrismaClient) {
-        this.prismaModel = prisma[model]; // Utilisation explicite pour éviter les erreurs liées à l'indexation dynamique.
+    constructor(prisma: PrismaClient, model: keyof PrismaClient) {
+        this.prismaModel = prisma[model];
     }
 
     async create(data: CreateDto): Promise<T> {
@@ -16,8 +19,8 @@ export class PrismaRepository<T, CreateDto, UpdateDto, QueryParamsDto> implement
         return this.prismaModel.findUnique({ where: { id } });
     }
 
-    async findAll(params: QueryParamsDto): Promise<T[]> {
-        return this.prismaModel.findMany();
+    async findAll(queryParams: QueryParamsDto): Promise<T[]> {
+        return this.prismaModel.findMany(queryParams);
     }
 
     async update(id: string | number, data: UpdateDto): Promise<T> {

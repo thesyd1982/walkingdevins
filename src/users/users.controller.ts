@@ -19,6 +19,7 @@ export class UsersController {
     }
     @Post() // POST /users
     create(@Body(ValidationPipe) user: CreateUserDto) {
+        console.log(user)
         return this.usersService.create(user)
     }
     @Patch(':id') // PATCH /users/:id

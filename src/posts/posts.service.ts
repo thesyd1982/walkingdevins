@@ -14,7 +14,7 @@ export class PostsService {
     }
 
     findAll(queryParamsPostDto: QueryParamsPostDto) {
-        return this.findAll(queryParamsPostDto)
+        return this.postRepository.findAll(queryParamsPostDto)
     }
 
     findOne(id: number) {

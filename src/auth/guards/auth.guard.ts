@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
 
         const token = this.extractTokenFromHeader(request);
         if (!token) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("token required");
         }
 
         // if the token is not valid retrive the refresh token
@@ -25,7 +25,6 @@ export class AuthGuard implements CanActivate {
         // if the refresh token is not valid return 401
 
         // if the refresh token is valid return the new access token
-
 
         try {
             const payload = await this.jwtService.verifyAsync(
@@ -36,6 +35,13 @@ export class AuthGuard implements CanActivate {
             );
             request['user'] = payload;
 
+            // const refreshToken = this.extractTokenFromCookie(request);
+            // if (!refreshToken) {
+            //     throw new UnauthorizedException();
+            // }
+
+
+
         } catch {
             throw new UnauthorizedException();
         }
@@ -45,5 +51,8 @@ export class AuthGuard implements CanActivate {
     private extractTokenFromHeader(request: Request): string | undefined {
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
+    }
+    private extractTokenFromCookie(request: Request): string | undefined {
+        return request.cookies?.['refreshToken'];
     }
 }

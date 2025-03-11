@@ -10,6 +10,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
 
+
         switch (exception.code) {
             case 'P2002': // Unique constraint violation
                 statusCode = HttpStatus.CONFLICT;

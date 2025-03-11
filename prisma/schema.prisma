@@ -49,7 +49,6 @@ model RefreshToken {
     revoked     Boolean  @default(false)
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
-    expireAt    DateTime
 
     @@map("refreshTokens")
 }

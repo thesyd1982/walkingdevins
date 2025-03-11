@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { IPostRepository } from '../interfaces';
-import { CreatePostDto, QueryParamsPostDto, UpdatePostDto } from '../dtos';
+import { PrismaRepository } from 'src/prisma/repositories/prisma-generic.repository';
 import { Post } from '@prisma/client';
+import { CreatePostDto, QueryParamsPostDto, UpdatePostDto } from '../dtos';
+import { IPostRepository } from '../interfaces';
 
 @Injectable()
-export class PrismaPostRepository implements IPostRepository {
-    constructor(private prisma: PrismaService) { }
-
-    async create(data: CreatePostDto): Promise<Post> {
-
-        return this.prisma.post.create({ data });
+export class PrismaPostRepository
+    extends PrismaRepository<Post, CreatePostDto, UpdatePostDto, QueryParamsPostDto>
+    implements IPostRepository {
+    constructor(private prisma: PrismaService) {
+        super(prisma, 'post');
     }
 
     async findAll(params: QueryParamsPostDto): Promise<Post[]> {
@@ -35,16 +35,5 @@ export class PrismaPostRepository implements IPostRepository {
             orderBy,
         });
     }
-
-    async findOne(id: number): Promise<Post | null> {
-        return this.prisma.post.findUnique({ where: { id } });
-    }
-
-    async update(id: number, data: UpdatePostDto): Promise<Post> {
-        return this.prisma.post.update({ where: { id }, data });
-    }
-
-    async delete(id: number): Promise<void> {
-        await this.prisma.post.delete({ where: { id } });
-    }
 }
+

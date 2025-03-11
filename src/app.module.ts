@@ -8,6 +8,9 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TokensModule } from './tokens/tokens.module';
 import { CommonModule } from './common/common.module';
+import { TasksModule } from './tasks/tasks.module';
+import { ActivityModule } from './activity/activity.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
     imports: [
@@ -17,7 +20,10 @@ import { CommonModule } from './common/common.module';
         AuthModule,
         PrismaModule,
         TokensModule,
-        CommonModule
+        CommonModule,
+        TasksModule,
+        ActivityModule,
+        MessagesModule,
     ],
     controllers: [AppController],
     providers: [AppService],

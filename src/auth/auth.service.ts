@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as argon from 'argon2'
 import { SignupDto, SigninDto } from './dtos';
 import { UsersService } from '../users/users.service';
@@ -29,12 +29,19 @@ export class AuthService {
     }
 
     async signin(signinDto: SigninDto) {
-        const user = await this.usersService.findOne(signinDto.email)
+
+        const user = await this.validateUser(signinDto.email, signinDto.password)
+
+        if (!user) return null
+
         // generate the access token 
-        const accessToken = await this.tokensService.signToken(user.id, user.email)
+        const accessToken = await this.tokensService.signToken(user.id)
+
         // generate the refresh token 
-        const refreshToken = await this.tokensService.signToken(user.id, user.email, 'refresh')
-        this.tokensService.saveToken(user.id, refreshToken, 'refresh')
+        const refreshToken = await this.tokensService.signToken(user.id, 'refresh')
+
+        // save refresh token in DB
+        await this.tokensService.saveToken(refreshToken, 'refresh')
 
         return { access_token: accessToken, refresh_token: refreshToken }
     }

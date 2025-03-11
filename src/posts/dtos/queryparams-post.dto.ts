@@ -19,10 +19,11 @@ export class QueryParamsPostDto {
     @IsOptional()
     @IsBoolean()
     @Transform(({ value }) => value === 'true')
-    published?: boolean = false;
+    published?: boolean;
 
     @IsOptional()
-    @IsString()
+    @IsInt()
+    @Type(() => Number)
     authorId?: number;
 
     @IsOptional()
